@@ -7,10 +7,10 @@
 -- Feel free to google RANK examples too.
 
 
-
 -- Return a list of all customers, RANKED in order from highest to lowest total spendings
 -- WITHIN the country they live in.
 -- HINT: find a way to join the order_details, products, and customers tables
+-- Return the same list as before, but with only the top 3 customers in each country.
 
  WITH customer_order AS (
      SELECT (od.unit_price* od.quantity) AS total, count(o.order_id) AS count_order, 
@@ -31,10 +31,13 @@
  FROM detailed_customers_spendings
  GROUP BY 1,2,3
  ORDER BY 2 DESC
- )
+ ),
+ top_customers as (
  SELECT customer_id, customer_payments, country, RANK () OVER(
-     ORDER BY customer_payments DESC
+     PARTITION BY country ORDER BY customer_payments DESC
  ) price_rank
-FROM payment;
--- Return the same list as before, but with only the top 3 customers in each country.
+FROM payment
+ )
+SELECT * FROM top_customers where price_rank <=3;
+
 
